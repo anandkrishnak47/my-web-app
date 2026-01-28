@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-app
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-app
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-app
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-app
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+          env:
+            - name: AUDIT_RETENTION_DAYS
+              value: "{{ .Values.audit.retentionDays }}"
+            - name: AUDIT_CLEANUP_CRON
+              value: "{{ .Values.audit.cleanupCron }}"
+          resources: {{ toYaml .Values.resources | indent 10 }}
